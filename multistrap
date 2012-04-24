@@ -427,7 +427,7 @@ unlink ("${dir}etc/apt/sources.list.d/multistrap.sources.list")
 	if (-f "${dir}etc/apt/sources.list.d/multistrap.sources.list");
 opendir (LISTS, "${dir}etc/apt/sources.list.d/")
 	or die (_g("Cannot read apt sources list directory.\n"));
-my @sources=grep(!m:\.\.?$:, readdir LISTS);
+my @sources=grep(m:^multistrap-.*\.list$:, readdir LISTS);
 closedir (LISTS);
 foreach my $filelist (@sources) {
 	next if (-d $filelist);
