@@ -175,6 +175,11 @@ the C<bootstrap> list under General.
 
 The order of section names in either list is not important.
 
+'markauto' if true will cause packages installed to satisfy a
+dependency (as opposed to those installed intentionally, via a
+C<packages> list) to be marked as automatically installed in APT's
+extended state database.
+
 As with debootstrap, multistrap will continue after errors, as long
 as the configuration file can be correctly parsed.
 

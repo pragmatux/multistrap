@@ -36,13 +36,14 @@ use vars qw/ $progname $ourversion $dstrap $extra @aptsources
  $explicit_suite $allow_recommends %omitdebsrc @dsclist @sectoutput
  %flatfile %important $addimportant @debconf $hookdir %hooks
  $warn_count $use_shortcut @foreignarches $olddpkg $ignorenative
- %foreignpkgs /;
+ %foreignpkgs $markauto /;
 
 setlocale(LC_MESSAGES, "");
 textdomain("multistrap");
 $progname = basename($0);
 $ourversion = &our_version();
 $unpack = "true";
+$markauto = "false";
 %omitdebsrc=();
 %foreignpkgs=();
 while( @ARGV ) {
@@ -399,6 +400,7 @@ $retval >>= 8;
 die (sprintf (_g("apt download failed. Exit value: %d\n"),$retval))
 	if ($retval != 0);
 &force_unpack if ($unpack eq "true");
+&mark_as_autoinstalled_except ($str) if ($markauto eq "true");
 system ("touch ${dir}${libdir}lists/lock");
 if ((defined $setupsh) and (-x $setupsh)) {
 	$retval = 0;
@@ -681,6 +683,15 @@ sub force_unpack {
 		print SEED @s;
 		close (SEED);
 	}
+}
+
+sub mark_as_autoinstalled_except {
+	my @manual = split(/ +/, $_[0]);
+	my @all = map {
+			trim (`LC_ALL=C dpkg -f ${dir}${cachedir}archives/$_ Package`);
+		} @archives;
+	my @auto = grep {my $pkg = $_; ! grep /$pkg/, @manual} @all;
+	system ("apt-mark $config_str auto " . join (" ", @auto)) if @auto;
 }
 
 sub run_download_hooks {
@@ -1123,6 +1134,7 @@ sub cascade {
 				if (defined $keys{$section}{'directory'} and (not defined $dir));
 			# support the original value but replace by new value.
 			$unpack = "false" if (defined $keys{$section}{'forceunpack'} and (lc($keys{$section}{'forceunpack'}) ne "true"));
+			$markauto = lc($keys{$section}{'markauto'}) if (defined $keys{$section}{'markauto'});
 			$unpack = "false" if (defined $keys{$section}{'unpack'} and (lc($keys{$section}{'unpack'} ne "true")));
 			$configsh = lc($keys{$section}{'configscript'})
 				if (defined $keys{$section}{'configscript'} and (not defined $configsh));
@@ -1476,4 +1488,11 @@ sub dump_config {
 		warn ("\n$msg\n");
 		exit 1;
 	}
+}
+
+sub trim {
+	my $str = shift;
+	$str =~ s/^\s+//;
+	$str =~ s/\s+$//;
+	return $str;
 }
