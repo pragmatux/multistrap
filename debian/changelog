@@ -1,3 +1,10 @@
+multistrap (2.1.20ptux1) unstable; urgency=low
+
+  * Don't delete files unpacked to /etc/apt/sources.list.d
+  * Optionally mark dependencies as being auto-installed
+
+ -- Ryan Kuester <rkuester@insymbols.com>  Fri, 01 Mar 2013 23:43:33 +0000
+
 multistrap (2.1.20) unstable; urgency=low
 
   * [INTL:da] Danish translation of multistrap (Closes: #669879)
