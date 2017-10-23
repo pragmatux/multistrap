@@ -690,7 +690,7 @@ sub mark_as_autoinstalled_except {
 	my @all = map {
 			trim (`LC_ALL=C dpkg -f ${dir}${cachedir}archives/$_ Package`);
 		} @archives;
-	my @auto = grep {my $pkg = $_; ! grep /$pkg/, @manual} @all;
+	my @auto = grep {my $pkg = $_; ! grep $_ eq $pkg, @manual} @all;
 	system ("apt-mark $config_str auto " . join (" ", @auto)) if @auto;
 }
 
